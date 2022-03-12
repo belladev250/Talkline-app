@@ -46,6 +46,17 @@ if(req.body.userId === req.params.id || req.body.id){
 
 })
 
+//get a user 
+
+router.get('/:id',async(req,res)=>{
+    try{
+       const user = await userModel.findById(req.params.id)
+    const {createdAt,updatedAt,password,...other} =user._doc
+       res.status(200).json(other)
+    }catch(err){
+       return res.status(403).send(err)
+    }
+})
 //follow a user 
 
 //unfollow a user
