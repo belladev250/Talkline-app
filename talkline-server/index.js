@@ -4,6 +4,8 @@ const bodyParser = require('body-parser')
 const app = express();
 const helmet = require('helmet')
 const morgan = require('morgan')
+const authRouter = require('./routes/auth')
+const userRouter = require('./routes/Users')
 require('./config/mongodb')
 require('./models/users')
 
@@ -12,6 +14,10 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended:true}))
 app.use(helmet())
 app.use(morgan("common"))
+
+app.use("/api/auth",authRouter)
+app.use("/api/users",userRouter)
+
 
 const port = 5000
 app.listen(port,()=>console.log("talkline is running on ",+port));

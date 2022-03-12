@@ -35,7 +35,7 @@ coverPicture:{
    default:[]
  },
 
- followings:{
+ following:{
      type:Array,
      default:[]
  },
