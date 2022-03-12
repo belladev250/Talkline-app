@@ -58,7 +58,27 @@ router.get('/:id',async(req,res)=>{
     }
 })
 //follow a user 
+router.put("/:id/follow",async(req,res)=>{
+    if(req.body.userId !== req.params.id){
+        try{
+           //get current user and user you want to follow
+           const user = await userModel.findById(req.params.id)
+           const currentUser = await userModel.findById(req.body.userId)
+           if(!user.followers.includes(req.body.userId)){
+               await user.updateOne({$push:{followers:req.body.userId}})
+               await currentUser.updateOne({$push:{following:req.params.id}})
+               res.status(200).send("user followed")
+           }else{
+               res.status(403).send("you already followed this user")
+           }
+        }catch(err){
+            return res.status(500).send(err)
+        }
 
+    }else{
+       return res.status(403).send("you can't follow your self")
+    }
+})
 //unfollow a user
 
 
