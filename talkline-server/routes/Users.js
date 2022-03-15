@@ -18,7 +18,7 @@ router.put("/:id", async (req, res) => {
         const user = await userModel.findByIdAndUpdate(req.params.id, {
           $set: req.body,
         });
-        res.status(200).json("Account has been updated");
+        res.status(200).json({message:"Account has been updated",user});
       } catch (err) {
         return res.status(500).json(err);
       }
@@ -31,7 +31,7 @@ router.put("/:id", async (req, res) => {
 //delete a user 
 router.delete('/:id',async(req,res)=>{
 //check if the id is the same as the logged user
-if(req.body.userId === req.params.id || req.body.id){
+if(req.body.userId === req.params.id || req.body.isAdmin){
    try{
     await userModel.findByIdAndDelete(req.params.id)
     res.status(200).json({message:"Account has been deleted"})
@@ -49,9 +49,12 @@ if(req.body.userId === req.params.id || req.body.id){
 //get a user 
 
 router.get('/:id',async(req,res)=>{
+      const userId = req.body.userId
+       const username = req.body.username
     try{
-       const user = await userModel.findById(req.params.id)
-    const {createdAt,updatedAt,password,...other} =user._doc
+       
+  const user = userId ? await userModel.findById(userId): await  userModel.findOne({username:username})
+    const {updatedAt,password,...other} =user._doc
        res.status(200).json(other)
     }catch(err){
        return res.status(403).send(err)
@@ -79,6 +82,7 @@ router.put("/:id/follow",async(req,res)=>{
        return res.status(403).send("you can't follow your self")
     }
 })
+
 //unfollow a user
 router.put("/:id/unfollow",async(req,res)=>{
     if(req.body.userId !== req.params.id){
@@ -100,6 +104,28 @@ router.put("/:id/unfollow",async(req,res)=>{
     }else{
        return res.status(403).send("you can't unfollow your self")
     }
+})
+
+// get friends of a user
+
+router.get("/friends/:userId",async(req,res)=>{
+try{
+    const user = await userModel.findById(req.params.userId)
+    const friends = await Promise.all(
+      user.following.map((friendId)=>{
+        return userModel.findById(friendId)
+      })
+    )
+    let friendsList =[];
+    friends.map((friend)=>{
+      const{_id,username,profilePicture }= friend;
+      friendsList.push({_id,username,profilePicture})
+    })
+     res.status(200).send(friendsList)
+}catch(err){
+    res.status(500).send(err)
+}  
+
 })
 
 module.exports =router

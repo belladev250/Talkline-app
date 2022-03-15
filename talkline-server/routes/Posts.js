@@ -93,4 +93,16 @@ router.get('/timeline/all',async(req,res)=>{
     }
 })
 
+// get all posts of a user
+router.get("/profile/:username",async(req,res)=>{
+    try{
+        const user = await User.find({username:req.params.username}) 
+        const userPosts = await postModel.find({userId:user._id})
+        res.status(200).json(userPosts)
+    }catch(err){
+        res.status(500).send(err)
+    }
+
+})
+
 module.exports=router
